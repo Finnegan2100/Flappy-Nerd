@@ -38,6 +38,7 @@
         upPressed = false,
         startAgain = false,
         canFlap = true,
+		surging = false;
         score = 0;
 
     var pipeArray = [];	
@@ -133,20 +134,21 @@
     function onKeyDown(event) {
 
         if (event.keyCode === 38) {
-            if (canFlap && gameOver === false) {
-                bird.y += -50;
+            if (canFlap && !gameOver) {
+                //bird.y += -50;
+				surging = true;
                 startGame = true;
                 canFlap = false;
             }
         }
-        if (gameOver === true) {
+        if (gameOver) {
             window.location.reload();		
         }
     }
 
     function onKeyUp(event) {
 
-        if(event.keyCode === 38 && gameOver === false) {
+        if(event.keyCode === 38 && !gameOver) {
             bird.y += 0;
             canFlap = true;
         }
@@ -180,11 +182,11 @@
                 pipeBottom1.width + 10 ) {
             score++;
         }
-        if (bird.x > pipeBottom2.x + pipeBottom2.width && bird.x < pipeBottom2.x + 
+        else if (bird.x > pipeBottom2.x + pipeBottom2.width && bird.x < pipeBottom2.x + 
                 pipeBottom2.width + 10) {
             score++;
         }
-        if( bird.x > pipeBottom3.x + pipeBottom3.width && bird.x < pipeBottom3.x + 
+        else if( bird.x > pipeBottom3.x + pipeBottom3.width && bird.x < pipeBottom3.x + 
                 pipeBottom3.width + 10) {
             score++;
         }
@@ -221,7 +223,7 @@
 
     function updateText() {
 
-        if (startGame === true && gameOver === false) {
+        if (startGame && !gameOver) {
 
             pipeTop1.x += pipeTop1.vx;
             pipeTop2.x += pipeTop2.vx;
@@ -239,7 +241,7 @@
         }
 
 
-        if (startGame === false && gameOver === false) {
+        if (!startGame && !gameOver) {
 
             context.fillStyle = "black";
             context.font = "bold 32pt Arial";
@@ -258,7 +260,7 @@
             context.fillText("CODE BY BEN SAVAGE",140,380);
         }
 
-        if (gameOver === true) {
+        if (gameOver) {
 
             context.fillStyle = "black";
             context.font = "bold 32pt Arial";
@@ -295,6 +297,10 @@
         }   
     }
 
+	function stopSurge() {	
+	    console.log("works??");
+		surging = false;
+	}
     function main()  {
 
         window.setTimeout(main,33);
@@ -306,7 +312,12 @@
         respawnPipes();
         constrainPlayer();
 
-
+		if (surging) {
+			
+			window.setTimeout(stopSurge,120);
+			bird.y -= 18;
+		}
+		
         for (var i = 0; i < pipeArray.length; i++) {
             checkCollision(bird,pipeArray[i]);
         }
