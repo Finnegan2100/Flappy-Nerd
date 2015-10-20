@@ -5,7 +5,15 @@
 	    context = canvas.getContext("2d");
 
 
-    var spriteObject = {
+    var GAME = {
+        
+            WIDTH: 550, 
+			HEIGHT:  500, 
+			RATIO:  0,
+			scale: 1,
+			offset: {top: 0, left: 0},
+			currentWidth:  0,
+			currentHeight:  0,
         
             sourceX: 0,
             sourceY: 0,
@@ -30,8 +38,47 @@
         },
         halfHeight: function() {
             return this.height / 2;
-        }
+        },
+		init: function() {
+			
+			GAME.RATIO = GAME.WIDTH / GAME.HEIGHT;
+			GAME.currentWidth = GAME.WIDTH;
+			GAME.currentHeight = GAME.HEIGHT;
+			canvas.width = GAME.WIDTH;
+			canvas.height = GAME.HEIGHT;
+		},
+		resizeScreen: function() {
+
+			GAME.currentHeight = window.innerHeight;
+			GAME.currentWidth = GAME.currentHeight * GAME.RATIO;
+			
+			if (GAME.android || GAME.ios) {
+				document.body.style.height = (window.innerHeight + 50) + 'px';
+			}
+				
+			canvas.style.width = GAME.currentWidth + 'px';
+			canvas.style.height = GAME.currentHeight + 'px';
+				
+			if (window.innerHeight > 400 && GAME.android) {
+				canvas.style.width = (window.innerWidth / 1) + 'px';
+				canvas.style.height = (window.innerHeight / 1)+ 'px';
+			}
+			if (canvas.style.width === 962 + "px" && GAME.android) {
+				canvas.style.width = (window.innerWidth / 2.522) + 'px';
+			}
+				
+			GAME.scale = GAME.currentWidth / GAME.WIDTH;
+				
+			window.setTimeout(function() {
+					window.scrollTo(0,1);
+			}, 1);
+		}			
     };
+	
+	
+	GAME.ua = navigator.userAgent.toLowerCase();
+	GAME.android = GAME.ua.indexOf('android') > -1 ? true : false;
+	GAME.ios = ( GAME.ua.indexOf('iphone') > -1 || GAME.ua.indexOf('ipad') > -1  ) ? true : false;
 
     var startGame = false,
         gameOver = false,
@@ -43,7 +90,7 @@
 
     var pipeArray = [];	
 
-    var background = Object.create(spriteObject);
+    var background = Object.create(GAME);
     background.x = 0;
     background.y = 0;
     background.width = 550;
@@ -52,7 +99,7 @@
     var backgroundImage = new Image();
     backgroundImage.src = "assets/backgroundNerd.png";
 
-    var bird = Object.create(spriteObject);
+    var bird = Object.create(GAME);
     bird.x = 230;
     bird.y = 240;
     bird.width = 50;
@@ -61,7 +108,7 @@
     var birdImage = new Image();
     birdImage.src = "assets/nerd.png";
 
-    var ground = Object.create(spriteObject);
+    var ground = Object.create(GAME);
     ground.x = 0;
     ground.y = 450;
     ground.width = 550;
@@ -70,7 +117,7 @@
     groundImage = new Image();
     groundImage.src = "assets/ground.png";
 
-    var pipeBottom1 = Object.create(spriteObject);
+    var pipeBottom1 = Object.create(GAME);
     pipeBottom1.x = 500;
     pipeBottom1.y = 300;
     pipeBottom1.width = 100;
@@ -82,7 +129,7 @@
     pipeBottom1Image.src = "assets/pipeU.png";
 
 
-    var pipeBottom2 = Object.create(spriteObject);
+    var pipeBottom2 = Object.create(GAME);
     pipeBottom2.x = 1000;
     pipeBottom2.y = 350;
     pipeBottom2.width = 100;
@@ -90,7 +137,7 @@
     pipeBottom2.vx = -8;
     pipeArray.push(pipeBottom2);
 
-    var pipeBottom3 = Object.create(spriteObject);
+    var pipeBottom3 = Object.create(GAME);
     pipeBottom3.x = 1500;
     pipeBottom3.y = 320;
     pipeBottom3.width = 100;
@@ -100,7 +147,7 @@
 
     //PIPE TOP
 
-    var pipeTop1 = Object.create(spriteObject);
+    var pipeTop1 = Object.create(GAME);
     pipeTop1.x = 500;
     pipeTop1.y;
     pipeTop1.width = 100;
@@ -111,7 +158,7 @@
     var pipeTop1Image = new Image();
     pipeTop1Image.src = "assets/pipeD.png";
 
-    var pipeTop2 = Object.create(spriteObject);
+    var pipeTop2 = Object.create(GAME);
     pipeTop2.x = 1000;
     pipeTop2.y;
     pipeTop2.width = 100;
@@ -119,7 +166,7 @@
     pipeTop2.vx = -8;
     pipeArray.push(pipeTop2);
 
-    var pipeTop3 = Object.create(spriteObject);
+    var pipeTop3 = Object.create(GAME);
     pipeTop3.x = 1500;
     pipeTop3.y;
     pipeTop3.width = 100;
@@ -127,12 +174,15 @@
     pipeTop3.vx = -8;
     pipeArray.push(pipeTop3);
 
+	window.addEventListener('load', GAME.init, false);
     window.addEventListener("keydown",onKeyDown,false);
     window.addEventListener("keyup",onKeyUp,false);
     canvas.style.cursor = "none";
 
     function onKeyDown(event) {
-
+	
+		event.preventDefault();
+	
         if (event.keyCode === 38) {
             if (canFlap && !gameOver) {
                 //bird.y += -50;
@@ -301,16 +351,20 @@
 	    console.log("works??");
 		surging = false;
 	}
+    
     function main()  {
 
         window.setTimeout(main,33);
+		GAME.resizeScreen();
         context.clearRect(0,0,canvas.width,canvas.height);
 
+		
         render();
         updateScore();
         updateText();
         respawnPipes();
         constrainPlayer();
+		
 
 		if (surging) {
 			
